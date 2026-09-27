@@ -55,10 +55,11 @@ for action in actions/checkout docker/login-action docker/setup-buildx-action do
   }
 done
 
-# The trigger branch may contain only this workflow beyond the reviewed image
-# source. Building from the pinned checkout below is the provenance boundary.
-grep -Fqx -- "          git diff --quiet \"\$SOURCE_REVISION\" HEAD -- . ':!.github/workflows/publish-ghcr.yml'" "$workflow" >/dev/null || {
-  echo "missing workflow-only source guard" >&2
+# The trigger branch may contain only this workflow and its static policy test
+# beyond the reviewed image source. Building from the pinned checkout below is
+# the provenance boundary.
+grep -Fqx -- "          git diff --quiet \"\$SOURCE_REVISION\" HEAD -- . ':!.github/workflows/publish-ghcr.yml' ':!test/verify-publish-ghcr-workflow.sh'" "$workflow" >/dev/null || {
+  echo "missing publication-artifact-only source guard" >&2
   exit 1
 }
 
