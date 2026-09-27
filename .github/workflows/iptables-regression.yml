@@ -1,0 +1,23 @@
+name: iptables regression
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: iptables-regression-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ingress-and-transparent-flow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - name: Verify ingress readiness and transparent interception
+        run: ./test/iptables-regression.sh

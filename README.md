@@ -219,7 +219,7 @@ ip route add local default dev lo table 100
 iptables -t mangle -N DIVERT
 iptables -t mangle -A DIVERT -j MARK --set-mark 1
 iptables -t mangle -A DIVERT -j ACCEPT
-iptables -t mangle -A PREROUTING -p tcp -m socket -j DIVERT
+iptables -t mangle -A PREROUTING -p tcp -m socket --transparent -j DIVERT
 
 iptables -t mangle -N PROXY
 iptables -t mangle -A PROXY -p tcp -d 127.0.0.0/8 -j RETURN

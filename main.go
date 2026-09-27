@@ -83,7 +83,7 @@ func cleanupIptables(ctx context.Context) {
 		runCommand(ctx, iptables, "-t", "mangle", "-D", "PREROUTING", "-p", "tcp", "-j", iptablesNamespace)
 		runCommand(ctx, iptables, "-t", "mangle", "-D", "PREROUTING", "-p", "tcp", "-j", iptablesNamespaceTproxy)
 		runCommand(ctx, iptables, "-t", "mangle", "-D", "PREROUTING", "-p", "udp", "--dport", "53", "-j", iptablesNamespaceDNSTproxy)
-		runCommand(ctx, iptables, "-t", "mangle", "-D", "PREROUTING", "-p", "tcp", "-m", "socket", "-j", "DIVERT")
+		runCommand(ctx, iptables, "-t", "mangle", "-D", "PREROUTING", "-p", "tcp", "-m", "socket", "--transparent", "-j", "DIVERT")
 		runCommand(ctx, iptables, "-t", "mangle", "-D", "OUTPUT", "-p", "tcp", "-j", iptablesNamespace)
 		runCommand(ctx, iptables, "-t", "mangle", "-D", "OUTPUT", "-p", "udp", "--dport", "53", "-j", iptablesNamespaceDNS)
 		runCommand(ctx, iptables, "-t", "mangle", "-F", "DIVERT")
@@ -1055,9 +1055,9 @@ func entrypoint(ctx context.Context) {
 		// 3. Accept the packet (stop further processing in the mangle table for these packets)
 		mustRunCommand(ctx, iptables, "-t", "mangle", "-A", "DIVERT", "-j", "ACCEPT")
 
-		// 4. In PREROUTING, check if there is an existing socket for this TCP packet.
+		// 4. In PREROUTING, check whether this TCP packet belongs to a transparent socket.
 		// If yes, send it to the DIVERT chain.
-		mustRunCommand(ctx, iptables, "-t", "mangle", "-A", "PREROUTING", "-p", "tcp", "-m", "socket", "-j", "DIVERT")
+		mustRunCommand(ctx, iptables, "-t", "mangle", "-A", "PREROUTING", "-p", "tcp", "-m", "socket", "--transparent", "-j", "DIVERT")
 
 		const iptablesNamespaceTproxy = iptablesNamespace + "_TPROXY"
 
